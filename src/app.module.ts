@@ -5,7 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { CourseModule } from './course/course.module';
-import { LevelModule } from './level/level.module';
+import { User } from './user/entities/user.entity';
+import { ModulesModule } from './modules/modules.module';
+import { LessonsModule } from './lessons/lessons.module';
+import { AssignmentsModule } from './assignments/assignments.module';
+import { ResultsModule } from './results/results.module';
 
 @Module({
   imports: [
@@ -16,13 +20,17 @@ import { LevelModule } from './level/level.module';
       username: process.env.POSTGRES_USER || 'postgres',
       password: process.env.POSTGRES_PASSWORD || 'avaz1514',
       database: process.env.POSTGRES_DB || 'exam',
-      entities: [],
+      entities: [User],
       synchronize: true,
+      autoLoadEntities: true
     }),
     UserModule,
     AuthModule,
     CourseModule,
-    LevelModule,
+    ModulesModule,
+    LessonsModule,
+    AssignmentsModule,
+    ResultsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
