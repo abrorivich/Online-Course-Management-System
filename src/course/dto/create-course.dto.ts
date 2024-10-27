@@ -12,12 +12,18 @@ export class CreateCourseDto {
     @MinLength(10)
     @MaxLength(128)
     description: string
-
+    
     @IsNotEmpty()
     @IsNumber()
     @Min(500000)
     @Max(2000000)
     price: number
+    
+    @IsNotEmpty()
+    @IsString()
+    @MinLength(4)
+    @MaxLength(64)
+    teacher: string
 
     @IsNotEmpty()
     @IsString()

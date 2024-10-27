@@ -10,6 +10,11 @@ import { ModulesModule } from './modules/modules.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { AssignmentsModule } from './assignments/assignments.module';
 import { ResultsModule } from './results/results.module';
+import { Course } from './course/entities/course.entity';
+import { Modules } from './modules/entities/module.entity';
+import { Lesson } from './lessons/entities/lesson.entity';
+import { Assignment } from './assignments/entities/assignment.entity';
+import { Result } from './results/entities/result.entity';
 
 @Module({
   imports: [
@@ -20,7 +25,7 @@ import { ResultsModule } from './results/results.module';
       username: process.env.POSTGRES_USER || 'postgres',
       password: process.env.POSTGRES_PASSWORD || 'avaz1514',
       database: process.env.POSTGRES_DB || 'exam',
-      entities: [User],
+      entities: [User, Course, Modules, Lesson, Assignment, Result],
       synchronize: true,
       autoLoadEntities: true
     }),

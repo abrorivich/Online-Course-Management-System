@@ -20,6 +20,12 @@ export class UpdateCourseDto extends PartialType(CreateCourseDto) {
     @Min(500000)
     @Max(2000000)
     price: number
+
+    @IsOptional()
+    @IsString()
+    @MinLength(4)
+    @MaxLength(64)
+    teacher: string
     
     @IsOptional()
     @IsString()

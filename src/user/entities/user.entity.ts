@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Role } from "../dto/create-user.dto";
 import { Course } from "src/course/entities/course.entity";
+import { Result } from "src/results/entities/result.entity";
 
 @Entity()
 export class User {
@@ -27,4 +28,7 @@ export class User {
 
     @ManyToMany(() => Course, (course) => course.user)
     course: Course[];
+
+    @OneToMany(() => Result, (result) => result.user)
+    result: Result[];
 }
