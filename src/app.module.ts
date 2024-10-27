@@ -15,9 +15,14 @@ import { Modules } from './modules/entities/module.entity';
 import { Lesson } from './lessons/entities/lesson.entity';
 import { Assignment } from './assignments/entities/assignment.entity';
 import { Result } from './results/entities/result.entity';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DATABASE_HOST || 'localhost',
@@ -40,4 +45,4 @@ import { Result } from './results/entities/result.entity';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

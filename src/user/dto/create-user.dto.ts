@@ -2,15 +2,14 @@ import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min
 
 export enum Role {
     ADMIN = 'admin',
-    TEACHER = 'teacher',
     USER = 'user'
 }
 
 export class CreateUserDto {
     @IsNotEmpty()
     @IsString()
-    @MaxLength(32)
     @MinLength(4)
+    @MaxLength(32)
     username: string
 
     @IsNotEmpty()

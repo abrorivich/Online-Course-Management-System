@@ -1,11 +1,11 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min, MinLength } from "class-validator"
-import { Role } from "src/user/dto/create-user.dto"
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { Role } from 'src/user/dto/create-user.dto';
 
-export class CreateAuthDto {
+export class RegisterDto {
     @IsNotEmpty()
     @IsString()
-    @MinLength(4)
     @MaxLength(32)
+    @MinLength(4)
     username: string
 
     @IsNotEmpty()
