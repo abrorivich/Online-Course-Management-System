@@ -18,12 +18,15 @@ export class CourseService {
   }
 
   async findAll(): Promise<Course[]> {
-    const course = await this.courseRepository.find()
-    return course;
+    const course = await this.courseRepository.find({ relations: ['module'] })
+    return course
   }
 
   async findOne(id: number): Promise<Course> {
-    let course = await this.courseRepository.findOneBy({ id })
+    let course = await this.courseRepository.findOne({
+      where: { id },
+      relations: ['module'],
+    })
     if (!course)
       throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
     return course;
