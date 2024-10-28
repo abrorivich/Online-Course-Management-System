@@ -7,6 +7,12 @@ export class UpdateAssignmentDto extends PartialType(CreateAssignmentDto) {
     @IsString()
     @MinLength(4)
     @MaxLength(32)
+    name: string
+
+    @IsOptional()
+    @IsString()
+    @MinLength(4)
+    @MaxLength(32)
     description: string
 
     @IsOptional()

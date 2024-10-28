@@ -18,7 +18,7 @@ export class CourseService {
   }
 
   async findAll(): Promise<Course[]> {
-    const course = await this.courseRepository.find({ relations: ['module', "module.lesson"] })
+    const course = await this.courseRepository.find({ relations: ['module', "module.lesson", "module.lesson.assignment"] })
     return course
   }
 

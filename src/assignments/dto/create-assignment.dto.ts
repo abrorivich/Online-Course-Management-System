@@ -5,6 +5,12 @@ export class CreateAssignmentDto {
     @IsString()
     @MinLength(4)
     @MaxLength(32)
+    name: string
+
+    @IsNotEmpty()
+    @IsString()
+    @MinLength(4)
+    @MaxLength(32)
     description: string
 
     @IsNotEmpty()

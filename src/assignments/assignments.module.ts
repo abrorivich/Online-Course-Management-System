@@ -10,5 +10,6 @@ import { Result } from 'src/results/entities/result.entity';
   imports: [TypeOrmModule.forFeature([Assignment, Lesson, Result])],
   controllers: [AssignmentsController],
   providers: [AssignmentsService],
+  exports: [AssignmentsService],
 })
 export class AssignmentsModule { }
