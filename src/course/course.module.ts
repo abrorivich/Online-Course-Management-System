@@ -3,7 +3,7 @@ import { CourseService } from './course.service';
 import { CourseController } from './course.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Course } from './entities/course.entity';
-import { Modules } from 'src/modules/entities/module.entity';
+import { Modules } from 'src/lessons/modules/entities/module.entity';
 import { User } from 'src/user/entities/user.entity';
 
 @Module({

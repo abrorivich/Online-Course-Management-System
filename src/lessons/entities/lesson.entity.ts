@@ -1,5 +1,5 @@
 import { Assignment } from "src/assignments/entities/assignment.entity";
-import { Modules } from "src/modules/entities/module.entity";
+import { Modules } from "src/lessons/modules/entities/module.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()

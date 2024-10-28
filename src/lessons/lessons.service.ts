@@ -4,7 +4,7 @@ import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Lesson } from './entities/lesson.entity';
 import { Repository } from 'typeorm';
-import { Modules } from 'src/modules/entities/module.entity';
+import { Modules } from 'src/lessons/modules/entities/module.entity';
 
 @Injectable()
 export class LessonsService {
