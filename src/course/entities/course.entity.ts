@@ -1,4 +1,4 @@
-import { Modules } from "src/lessons/modules/entities/module.entity"
+import { Modules } from "src/modules/entities/module.entity"
 import { User } from "src/user/entities/user.entity"
 import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 
