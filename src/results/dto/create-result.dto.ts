@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from "class-validator"
+import { IsEmpty, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
 
 export class CreateResultDto {
     @IsNotEmpty()
@@ -11,7 +11,7 @@ export class CreateResultDto {
     @IsNumber()
     assignmentId: number
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsNumber()
     userId: number
 }
