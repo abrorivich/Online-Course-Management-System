@@ -10,5 +10,7 @@ import { Assignment } from 'src/assignments/entities/assignment.entity';
   imports: [TypeOrmModule.forFeature([Lesson, Modules, Assignment])],
   controllers: [LessonsController],
   providers: [LessonsService],
+  exports: [LessonsService],
+
 })
 export class LessonsModule { }

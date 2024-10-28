@@ -17,7 +17,7 @@ export class ModulesController {
   }
   
   @Get("getAll")
-  findAll() {
+  findAll(): Promise<Modules[]> {
     return this.modulesService.findAll();
   }
   

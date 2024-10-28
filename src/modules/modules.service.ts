@@ -25,7 +25,7 @@ export class ModulesService {
   }
 
   async findAll(): Promise<Modules[]> {
-    const modules = await this.modulesRepository.find({ relations: ['course'] })
+    const modules = await this.modulesRepository.find({ relations: ['course', "lesson"] })
     return modules
   }
 
@@ -42,7 +42,7 @@ export class ModulesService {
   async update(id: number, { name, description, courseId }: UpdateModuleDto): Promise<string> {
     const course = await this.courseRepository.findOneBy({ id: courseId })
     if (!course)
-      throw new HttpException('Modules not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
     let modules = await this.modulesRepository.findOneBy({ id })
     if (!modules) {
       throw new HttpException('Modules not found', HttpStatus.NOT_FOUND);
