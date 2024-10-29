@@ -1,6 +1,6 @@
 import { Modules } from "src/modules/entities/module.entity"
 import { User } from "src/user/entities/user.entity"
-import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm"
+import { Column, Entity , JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity()
 export class Course {
@@ -29,5 +29,6 @@ export class Course {
     module: Modules[]
 
     @ManyToMany(() => User, (user) => user.course)
+    @JoinTable()
     user: User[];
 }

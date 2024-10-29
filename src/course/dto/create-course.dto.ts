@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, Max, MaxLength, Min, MinLength } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min, MinLength } from "class-validator";
 
 export class CreateCourseDto {
     @IsNotEmpty()
@@ -36,4 +36,8 @@ export class CreateCourseDto {
     @MaxLength(64)
     @MinLength(4)
     level: string
+
+    @IsOptional()
+    @IsNumber()
+    userId: number
 }
