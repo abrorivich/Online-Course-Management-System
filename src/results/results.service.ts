@@ -19,75 +19,56 @@ export class ResultsService {
     @InjectRepository(Course) private courseRepository: Repository<Course>,
     private readonly jwtService: JwtService,
   ) { }
-
-  // async create(accessToken: string, { homework, assignmentId }: CreateResultDto) {
-  //   try {
-  //     const payload = this.jwtService.verify(accessToken);
-  //     const users = await this.userRepository.findOne({ where: { id: payload.id } });
-  //     if (!users) {
-  //       throw new UnauthorizedException('User not found');
-  //     }
-
-  //     const assignment = await this.assignmentRepository.findOne({ 
-  //       where: { id: assignmentId },
-  //       relations: ["lesson", "lesson.modules", "lesson.modules.course", "lesson.modules.course.user"]
-  //      })
-  //     if (!assignment)
-  //       throw new HttpException('Assignment not found', HttpStatus.NOT_FOUND);
-
-  //     const isUserInCourse = assignment.lesson.modules.course.user.some(user => user.id === users.id)     
-  //     if (isUserInCourse === false) {
-  //       throw new UnauthorizedException('User is not enrolled in the course for this assignment');
-  //     }
-
-  //     const result = await this.resultRepository.create({ homework, assignment, user: users });
-  //     await this.resultRepository.save(result);
-  //     return result
-  //   } catch (error) {
-  //     throw new UnauthorizedException('Invalid access token');
-  //   }
-  // }
-
   async create(accessToken: string, { homework, assignmentId }: CreateResultDto) {
     try {
       const payload = this.jwtService.verify(accessToken);
-      const users = await this.userRepository.findOne({ where: { id: payload.id } });
-      if (!users) {
+      const user = await this.userRepository.findOne({ where: { id: payload.id } });
+      if (!user) {
         throw new UnauthorizedException('User not found');
       }
+
       const assignment = await this.assignmentRepository.findOne({
         where: { id: assignmentId },
         relations: ["lesson", "lesson.modules", "lesson.modules.course", "lesson.modules.course.user"]
       });
+
       if (!assignment) {
         throw new HttpException('Assignment not found', HttpStatus.NOT_FOUND);
       }
-      const isUserInCourse = assignment.lesson.modules.course.user.some(user => user.id === users.id);
+
+      const isUserInCourse = assignment.lesson.modules.course.user.some(courseUser => courseUser.id === user.id);
       if (!isUserInCourse) {
         throw new UnauthorizedException('User is not enrolled in the course for this assignment');
       }
+
       // Takroriy result ni tekshirish
       const existingResult = await this.resultRepository.findOne({
         where: {
           assignment: { id: assignment.id },
-          user: { id: users.id }
+          user: { id: user.id }
         }
       });
+
       if (existingResult) {
         if (existingResult.ball > 0) { // 0 dan katta baho mavjud bo'lsa
-          return 'You have been graded, you cannot update'
+          throw new HttpException('You have been graded, you cannot update', HttpStatus.FORBIDDEN);
         }
+
         // Agar mavjud natijani yangilamoqchi bo'lsangiz
         existingResult.homework = homework; // Yangi homeworkni o'rnating
         await this.resultRepository.save(existingResult); // Saqlang
         return existingResult; // Yangilangan natijani qaytaring
-
       }
-      const result = await this.resultRepository.create({ homework, assignment, user: users });
+
+      const result = await this.resultRepository.create({ homework, assignment, user });
       await this.resultRepository.save(result);
       return result;
     } catch (error) {
-      throw new UnauthorizedException('Invalid access token');
+      if (error instanceof HttpException) {
+        throw error; // Agar xato HttpException bo'lsa, uni qaytarish
+      } else {
+        throw new HttpException('Invalid access token', HttpStatus.UNAUTHORIZED); // Boshqa xatolar uchun umumiy xato
+      }
     }
   }
 
@@ -120,7 +101,7 @@ export class ResultsService {
     }
   }
 
-  async update(id: number, {status, teacherMessage, ball }: UpdateResultDto) {
+  async update(id: number, { status, teacherMessage, ball }: UpdateResultDto) {
     try {
       const result = await this.resultRepository.findOneBy({ id })
       if (!result)
