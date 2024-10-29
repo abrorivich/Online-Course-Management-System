@@ -9,54 +9,87 @@ import { Modules } from 'src/modules/entities/module.entity';
 @Injectable()
 export class LessonsService {
   constructor(
-    @InjectRepository(Lesson)
-    private lessonRepository: Repository<Lesson>,
-    @InjectRepository(Modules)
-    private modulesRepository: Repository<Modules>,
+    @InjectRepository(Lesson) private lessonRepository: Repository<Lesson>,
+    @InjectRepository(Modules) private modulesRepository: Repository<Modules>,
   ) { }
 
   async create({ name, description, modulesId }: CreateLessonDto): Promise<Lesson> {
-    const modules = await this.modulesRepository.findOneBy({ id: modulesId })
-    if (!modules)
-      throw new HttpException('Modules not found', HttpStatus.NOT_FOUND);
-    const lesson = await this.lessonRepository.create({ name, description, modules });
-    await this.lessonRepository.save(lesson);
-    return lesson
+    try {
+      const modules = await this.modulesRepository.findOneBy({ id: modulesId })
+      if (!modules)
+        throw new HttpException('Modules not found', HttpStatus.NOT_FOUND);
+      const lesson = await this.lessonRepository.create({ name, description, modules });
+      await this.lessonRepository.save(lesson);
+      return lesson
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async findAll(): Promise<Lesson[]> {
-    const lesson = await this.lessonRepository.find({ relations: ['modules'] })
-    return lesson
+    try {
+      const lesson = await this.lessonRepository.find({ relations: ['modules'] })
+      return lesson
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async findOne(id: number): Promise<Lesson> {
-    let lesson = await this.lessonRepository.findOne({
-      where: { id },
-      relations: ['modules'],
-    })
-    if (!lesson)
-      throw new HttpException('Lesson not found', HttpStatus.NOT_FOUND);
-    return lesson;
+    try {
+      let lesson = await this.lessonRepository.findOne({
+        where: { id },
+        relations: ['modules'],
+      })
+      if (!lesson)
+        throw new HttpException('Lesson not found', HttpStatus.NOT_FOUND);
+      return lesson;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async update(id: number, { name, description, modulesId }: UpdateLessonDto): Promise<string> {
-    const modules = await this.modulesRepository.findOneBy({ id: modulesId })
-    if (!modules)
-      throw new HttpException('Modules not found', HttpStatus.NOT_FOUND);
-    let lesson = await this.lessonRepository.findOneBy({ id })
-    if (!lesson) {
-      throw new HttpException('Lesson not found', HttpStatus.NOT_FOUND);
+    try {
+      const modules = await this.modulesRepository.findOneBy({ id: modulesId })
+      if (!modules)
+        throw new HttpException('Modules not found', HttpStatus.NOT_FOUND);
+      let lesson = await this.lessonRepository.findOneBy({ id })
+      if (!lesson) {
+        throw new HttpException('Lesson not found', HttpStatus.NOT_FOUND);
+      }
+      await this.lessonRepository.update({ id }, { name, description, modules });
+      return `Update lesson 👌🏻`
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-    await this.lessonRepository.update({ id }, { name, description, modules });
-    return `Update lesson 👌🏻`
   }
 
   async remove(id: number): Promise<string> {
-    let lesson = await this.lessonRepository.findOneBy({ id })
-    if (!lesson) {
-      throw new HttpException('Lesson not found', HttpStatus.NOT_FOUND);
+    try {
+      let lesson = await this.lessonRepository.findOneBy({ id })
+      if (!lesson) {
+        throw new HttpException('Lesson not found', HttpStatus.NOT_FOUND);
+      }
+      await this.lessonRepository.delete(id);
+      return "Deleted 🛒"
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-    await this.lessonRepository.delete(id);
-    return "Deleted 🛒"
   }
 }

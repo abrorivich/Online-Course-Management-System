@@ -7,16 +7,16 @@ export class Lesson {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column({ type: "varchar"})
+    @Column({ type: "varchar" })
     name: string
 
     @Column({ type: "varchar" })
     description: string
 
-    @ManyToOne((type) => Modules, (modules) => modules.lesson)
+    @ManyToOne((type) => Modules, (modules) => modules.lesson, { onDelete: "CASCADE" })
     @JoinColumn()
     modules: Modules
 
-    @OneToOne(() => Assignment, assignment => assignment.lesson)
+    @OneToOne(() => Assignment, assignment => assignment.lesson, { onDelete: "CASCADE" })
     assignment: Assignment;
 }

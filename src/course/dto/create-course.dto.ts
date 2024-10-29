@@ -3,8 +3,8 @@ import { IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min, MinLen
 export class CreateCourseDto {
     @IsNotEmpty()
     @IsString()
-    @MaxLength(32)
     @MinLength(4)
+    @MaxLength(32)
     name: string
 
     @IsNotEmpty()
@@ -27,14 +27,14 @@ export class CreateCourseDto {
 
     @IsNotEmpty()
     @IsString()
-    @MaxLength(32)
     @MinLength(4)
+    @MaxLength(32)
     category: string
 
     @IsNotEmpty()
     @IsString()
-    @MaxLength(64)
     @MinLength(4)
+    @MaxLength(64)
     level: string
 
     @IsOptional()

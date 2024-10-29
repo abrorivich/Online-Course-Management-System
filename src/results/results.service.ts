@@ -11,12 +11,9 @@ import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class ResultsService {
   constructor(
-    @InjectRepository(Result)
-    private resultRepository: Repository<Result>,
-    @InjectRepository(Assignment)
-    private assignmentRepository: Repository<Assignment>,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
+    @InjectRepository(Result) private resultRepository: Repository<Result>,
+    @InjectRepository(Assignment) private assignmentRepository: Repository<Assignment>,
+    @InjectRepository(User) private userRepository: Repository<User>,
     private readonly jwtService: JwtService,
   ) { }
 
@@ -27,46 +24,77 @@ export class ResultsService {
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
+      // console.log(user);
+      
       const assignment = await this.assignmentRepository.findOneBy({ id: assignmentId })
       if (!assignment)
         throw new HttpException('Assignment not found', HttpStatus.NOT_FOUND);
       const result = await this.resultRepository.create({ homework, assignment, user });
       await this.resultRepository.save(result);
       return result
+      // return "12"
     } catch (error) {
       throw new UnauthorizedException('Invalid access token');
     }
   }
 
   async findAll(): Promise<Result[]> {
-    const result = await this.resultRepository.find({ relations: ['assignment', 'user'] })
-    return result
+    try {
+      const result = await this.resultRepository.find({ relations: ['assignment', 'user'] })
+      return result
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async findOne(id: number): Promise<Result> {
-    let result = await this.resultRepository.findOne({
-      where: { id },
-      relations: ['assignment', 'user'],
-    })
-    if (!result)
-      throw new HttpException('Result not found', HttpStatus.NOT_FOUND);
-    return result;
+    try {
+      let result = await this.resultRepository.findOne({
+        where: { id },
+        relations: ['assignment', 'user'],
+      })
+      if (!result)
+        throw new HttpException('Result not found', HttpStatus.NOT_FOUND);
+      return result;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
-  async update(id: number, {teacherMessage, ball}: UpdateResultDto) {
-    const result = await this.resultRepository.findOneBy({ id })
-    if (!result)
-      throw new HttpException('Result not found', HttpStatus.NOT_FOUND);
-    await this.resultRepository.update({ id }, { teacherMessage, ball });
-    return `Update assignment 👌🏻`
+  async update(id: number, { teacherMessage, ball }: UpdateResultDto) {
+    try {
+      const result = await this.resultRepository.findOneBy({ id })
+      if (!result)
+        throw new HttpException('Result not found', HttpStatus.NOT_FOUND);
+      await this.resultRepository.update({ id }, { teacherMessage, ball });
+      return `Update assignment 👌🏻`
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async remove(id: number): Promise<string> {
-    let result = await this.resultRepository.findOneBy({ id })
-    if (!result) {
-      throw new HttpException('Result not found', HttpStatus.NOT_FOUND);
+    try {
+      let result = await this.resultRepository.findOneBy({ id })
+      if (!result) {
+        throw new HttpException('Result not found', HttpStatus.NOT_FOUND);
+      }
+      await this.resultRepository.delete(id);
+      return "Deleted 🛒"
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-    await this.resultRepository.delete(id);
-    return "Deleted 🛒"
   }
 }

@@ -5,8 +5,8 @@ import { IsNumber, IsOptional, IsString, Max, MaxLength, Min, MinLength } from '
 export class UpdateCourseDto extends PartialType(CreateCourseDto) {
     @IsOptional()
     @IsString()
-    @MaxLength(32)
     @MinLength(4)
+    @MaxLength(32)
     name: string
     
     @IsOptional()
@@ -29,13 +29,13 @@ export class UpdateCourseDto extends PartialType(CreateCourseDto) {
     
     @IsOptional()
     @IsString()
-    @MaxLength(32)
     @MinLength(4)
+    @MaxLength(32)
     category: string
     
     @IsOptional()
     @IsString()
-    @MaxLength(64)
     @MinLength(4)
+    @MaxLength(64)
     level: string
 }

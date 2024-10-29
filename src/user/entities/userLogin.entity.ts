@@ -4,7 +4,7 @@ import { Course } from "src/course/entities/course.entity";
 import { Result } from "src/results/entities/result.entity";
 
 @Entity()
-export class User {
+export class UserLogin {
     @PrimaryGeneratedColumn()
     id: number
 
@@ -25,13 +25,7 @@ export class User {
 
     @Column({ nullable: true })
     refreshToken?: string;
-
+    
     @Column({ type: "enum", enum: Role, default: Role.USER })
     role: Role
-
-    @ManyToMany(() => Course, (course) => course.user, { onDelete: "CASCADE" })
-    course: Course[];
-
-    @OneToMany(() => Result, (result) => result.user, { onDelete: "CASCADE" })
-    result: Result[];
 }

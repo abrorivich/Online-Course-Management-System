@@ -7,19 +7,19 @@ export class Assignment {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column({type: "varchar"})
+    @Column({ type: "varchar" })
     name: string
 
-    @Column({type: "varchar"})
+    @Column({ type: "varchar" })
     description: string
 
-    @Column({type: "int"})
+    @Column({ type: "int" })
     deadline: number
 
-    @OneToOne(() => Lesson, lesson => lesson.assignment)
+    @OneToOne(() => Lesson, lesson => lesson.assignment, { onDelete: "CASCADE" })
     @JoinColumn()
     lesson: Lesson;
 
-    @OneToOne(() => Result, result => result.assignment)
+    @OneToOne(() => Result, result => result.assignment, { onDelete: "CASCADE" })
     result: Result;
 }

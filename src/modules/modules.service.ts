@@ -9,54 +9,91 @@ import { Course } from 'src/course/entities/course.entity';
 @Injectable()
 export class ModulesService {
   constructor(
-    @InjectRepository(Modules)
-    private modulesRepository: Repository<Modules>,
-    @InjectRepository(Course)
-    private courseRepository: Repository<Course>,
+    @InjectRepository(Modules) private modulesRepository: Repository<Modules>,
+    @InjectRepository(Course) private courseRepository: Repository<Course>,
   ) { }
 
   async create({ name, description, courseId }: CreateModuleDto): Promise<Modules> {
-    const course = await this.courseRepository.findOneBy({ id: courseId })
-    if (!course)
-      throw new HttpException('Modules not found', HttpStatus.NOT_FOUND);
-    const modules = await this.modulesRepository.create({ name, description, course });
-    await this.modulesRepository.save(modules);
-    return modules
+    try {
+      const course = await this.courseRepository.findOneBy({ id: courseId })
+      if (!course)
+        throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
+      const modules = await this.modulesRepository.create({ name, description, course });
+      await this.modulesRepository.save(modules);
+      return modules
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async findAll(): Promise<Modules[]> {
-    const modules = await this.modulesRepository.find({ relations: ['course', "lesson"] })
-    return modules
+    try {
+
+      const modules = await this.modulesRepository.find({ relations: ['course', "lesson"] })
+      return modules
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async findOne(id: number): Promise<Modules> {
-    let modules = await this.modulesRepository.findOne({ 
-      where: { id },
-      relations: ['course'],
-     })
-    if (!modules)
-      throw new HttpException('Modules not found', HttpStatus.NOT_FOUND);
-    return modules;
+    try {
+
+      let modules = await this.modulesRepository.findOne({
+        where: { id },
+        relations: ['course'],
+      })
+      if (!modules)
+        throw new HttpException('Modules not found', HttpStatus.NOT_FOUND);
+      return modules;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async update(id: number, { name, description, courseId }: UpdateModuleDto): Promise<string> {
-    const course = await this.courseRepository.findOneBy({ id: courseId })
-    if (!course)
-      throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
-    let modules = await this.modulesRepository.findOneBy({ id })
-    if (!modules) {
-      throw new HttpException('Modules not found', HttpStatus.NOT_FOUND);
+    try {
+
+      const course = await this.courseRepository.findOneBy({ id: courseId })
+      if (!course)
+        throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
+      let modules = await this.modulesRepository.findOneBy({ id })
+      if (!modules) {
+        throw new HttpException('Modules not found', HttpStatus.NOT_FOUND);
+      }
+      await this.modulesRepository.update({ id }, { name, description, course });
+      return `Update modules 👌🏻`
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-    await this.modulesRepository.update({ id }, { name, description, course });
-    return `Update modules 👌🏻`
   }
 
   async remove(id: number): Promise<string> {
-    let modules = await this.modulesRepository.findOneBy({ id })
-    if (!modules) {
-      throw new HttpException('Modules not found', HttpStatus.NOT_FOUND);
+    try {
+
+      let modules = await this.modulesRepository.findOneBy({ id })
+      if (!modules) {
+        throw new HttpException('Modules not found', HttpStatus.NOT_FOUND);
+      }
+      await this.modulesRepository.delete(id);
+      return "Deleted 🛒"
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-    await this.modulesRepository.delete(id);
-    return "Deleted 🛒"
   }
 }

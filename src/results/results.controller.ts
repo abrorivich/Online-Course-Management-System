@@ -13,7 +13,7 @@ export class ResultsController {
 
   @UseGuards(AuthGuard, RolesUserGuard)
   @Post("create")
-  create(@Headers('authorization') authorizationHeader: string, @Body() createResultDto: CreateResultDto): Promise<Result> {
+  create(@Headers('authorization') authorizationHeader: string, @Body() createResultDto: CreateResultDto) {
     const tokens = authorizationHeader.split(' ');
     const accessToken = tokens[1];
     return this.resultsService.create(accessToken, createResultDto);

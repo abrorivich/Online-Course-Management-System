@@ -10,49 +10,116 @@ import { User } from 'src/user/entities/user.entity';
 @Injectable()
 export class CourseService {
   constructor(
-    @InjectRepository(Course)
-    private courseRepository: Repository<Course>,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
+    @InjectRepository(Course) private courseRepository: Repository<Course>,
+    @InjectRepository(User) private userRepository: Repository<User>,
     private readonly jwtService: JwtService,
   ) { }
 
   async create(createCourseDto: CreateCourseDto): Promise<Course> {
-    const course = await this.courseRepository.create(createCourseDto);
-    return this.courseRepository.save(course);
+    try {
+      const courseCheck = await this.courseRepository.findOne({ where: { name: createCourseDto.name } })
+      if (courseCheck) {
+        throw new HttpException('Name already in course', HttpStatus.CONFLICT);
+      }
+      const course = await this.courseRepository.create(createCourseDto);
+      return this.courseRepository.save(course);
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async findAll(): Promise<Course[]> {
-    const course = await this.courseRepository.find({ relations: ['module', "module.lesson", "module.lesson.assignment", "module.lesson.assignment.result", "module.lesson.assignment.result.user", "user"] })
-    return course
+    try {
+      const courses = await this.courseRepository.find({
+        relations: [
+          'module',
+          'module.lesson',
+          'module.lesson.assignment',
+          'module.lesson.assignment.result',
+          'module.lesson.assignment.result.user',
+          'user'
+        ],
+      });
+  
+      const formattedCourses = courses.map(course => {
+        // Har bir kursdagi foydalanuvchilarni formatlash
+        course.user.forEach(user => {
+          delete user.password;
+          delete user.refreshToken;
+        });
+  
+        // Har bir assignment ichidagi result foydalanuvchisini formatlash
+        course.module.forEach(module => {
+          module.lesson.forEach(lesson => {
+            if (lesson.assignment && lesson.assignment.result) {
+              delete lesson.assignment.result.user.password;
+              delete lesson.assignment.result.user.refreshToken;
+            }
+          });
+        });
+  
+        return course;
+      });
+  
+      return formattedCourses;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async findOne(id: number): Promise<Course> {
-    let course = await this.courseRepository.findOne({
-      where: { id },
-      relations: ['module'],
-    })
-    if (!course)
-      throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
-    return course;
+    try {
+      let course = await this.courseRepository.findOne({
+        where: { id },
+        relations: ['module', "module.lesson", "module.lesson.assignment", "module.lesson.assignment.result", "module.lesson.assignment.result.user", "user"],
+      })
+      if (!course)
+        throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
+      return course;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async update(id: number, updateCourseDto: UpdateCourseDto): Promise<string> {
-    let coruse = await this.courseRepository.findOneBy({ id })
-    if (!coruse) {
-      throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
+    try {
+      let coruse = await this.courseRepository.findOneBy({ id })
+      if (!coruse) {
+        throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
+      }
+      await this.courseRepository.update({ id }, { ...updateCourseDto });
+      return `Updated course 👌🏻`
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-    await this.courseRepository.update({ id }, { ...updateCourseDto });
-    return `Updated course 👌🏻`
   }
 
   async remove(id: number): Promise<string> {
-    let course = await this.courseRepository.findOneBy({ id })
-    if (!course) {
-      throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
+    try {
+      let course = await this.courseRepository.findOneBy({ id })
+      if (!course) {
+        throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
+      }
+      await this.courseRepository.delete(id);
+      return "Deleted 🛒"
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-    await this.courseRepository.delete(id);
-    return "Deleted 🛒"
   }
 
   async userWriteToCourse(accessToken: string, courseId: number, userId: number) {
@@ -62,16 +129,16 @@ export class CourseService {
       if (!users) {
         throw new UnauthorizedException('User not found');
       }
-      const course = await this.courseRepository.findOne({ where: { id: courseId }, relations: ['user']})
+      const course = await this.courseRepository.findOne({ where: { id: courseId }, relations: ['user'] })
       if (!course)
         throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
-    if (!course.user.some(existingUser => existingUser.id === users.id)) {
-      course.user.push(users);
-    } else {
-      throw new HttpException('User already in course', HttpStatus.BAD_REQUEST);
-    }
-    await this.courseRepository.save(course); 
-    return course;
+      if (!course.user.some(existingUser => existingUser.id === users.id)) {
+        course.user.push(users);
+      } else {
+        throw new HttpException('User already in course', HttpStatus.BAD_REQUEST);
+      }
+      await this.courseRepository.save(course);
+      return course;
     } catch (error) {
       throw new UnauthorizedException('Invalid access token');
     }

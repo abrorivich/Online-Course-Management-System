@@ -1,6 +1,6 @@
 import { Modules } from "src/modules/entities/module.entity"
 import { User } from "src/user/entities/user.entity"
-import { Column, Entity , JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm"
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity()
 export class Course {
@@ -25,10 +25,10 @@ export class Course {
     @Column({ type: "varchar" })
     level: string
 
-    @OneToMany((type) => Modules, (modules) => modules.course)
+    @OneToMany((type) => Modules, (modules) => modules.course, { onDelete: "CASCADE" })
     module: Modules[]
 
-    @ManyToMany(() => User, (user) => user.course)
+    @ManyToMany(() => User, (user) => user.course, { onDelete: "CASCADE" })
     @JoinTable()
     user: User[];
 }
