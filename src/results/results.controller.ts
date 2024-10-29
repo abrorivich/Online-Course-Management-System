@@ -5,7 +5,7 @@ import { UpdateResultDto } from './dto/update-result.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Result } from './entities/result.entity';
 import { RolesUserGuard } from 'src/auth/roleUser.guard';
-import { RolesGuard } from 'src/auth/roles.guard';
+import { RolesAdminGuard } from 'src/auth/rolesAdmin.guard';
 
 @Controller('results')
 export class ResultsController {
@@ -29,13 +29,13 @@ export class ResultsController {
     return this.resultsService.findOne(+id);
   }
   
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesAdminGuard)
   @Patch('update/:id')
   update(@Param('id') id: number, @Body() updateResultDto: UpdateResultDto): Promise<string> {
     return this.resultsService.update(+id, updateResultDto);
   }
   
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesAdminGuard)
   @Delete('delete/:id')
   remove(@Param('id') id: number): Promise<string> {
     return this.resultsService.remove(+id);

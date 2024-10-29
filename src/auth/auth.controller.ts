@@ -1,8 +1,6 @@
 import { Controller, Get, Post, Body, Res, Req, UseGuards, Headers, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
 import { AuthGuard } from './auth.guard';
-import { Request } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
@@ -14,7 +12,7 @@ export class AuthController {
   @Post('register/admin')
   async registerAdmin(@Body() createAuthDto: RegisterDto) {
     return this.authService.registerAdmin(createAuthDto);
-  }
+  } 
 
   @Post('register/user')
   async registerUser(@Body() createAuthDto: RegisterDto) {
