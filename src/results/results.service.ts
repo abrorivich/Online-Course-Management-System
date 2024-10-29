@@ -2,7 +2,7 @@ import { ConflictException, HttpException, HttpStatus, Injectable, UnauthorizedE
 import { CreateResultDto } from './dto/create-result.dto';
 import { UpdateResultDto } from './dto/update-result.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Result } from './entities/result.entity';
+import { Result, Status } from './entities/result.entity';
 import { Repository } from 'typeorm';
 import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -120,12 +120,12 @@ export class ResultsService {
     }
   }
 
-  async update(id: number, { teacherMessage, ball }: UpdateResultDto) {
+  async update(id: number, {status, teacherMessage, ball }: UpdateResultDto) {
     try {
       const result = await this.resultRepository.findOneBy({ id })
       if (!result)
         throw new HttpException('Result not found', HttpStatus.NOT_FOUND);
-      await this.resultRepository.update({ id }, { teacherMessage, ball });
+      await this.resultRepository.update({ id }, { status: Status.Bajarilgan, teacherMessage, ball });
       return `Update assignment 👌🏻`
     } catch (error) {
       if (error instanceof HttpException) {

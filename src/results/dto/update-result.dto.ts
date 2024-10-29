@@ -6,7 +6,7 @@ import { Status } from '../entities/result.entity';
 export class UpdateResultDto extends PartialType(CreateResultDto) {
     @IsOptional()
     @IsEnum(Status)
-    status: Status.Bajarilgan 
+    status: Status 
 
     @IsNotEmpty()
     @IsString()
