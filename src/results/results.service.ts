@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateResultDto } from './dto/create-result.dto';
 import { UpdateResultDto } from './dto/update-result.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,8 @@ import { Repository } from 'typeorm';
 import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { User } from 'src/user/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
+import { Course } from 'src/course/entities/course.entity';
+import { log } from 'util';
 
 @Injectable()
 export class ResultsService {
@@ -14,25 +16,76 @@ export class ResultsService {
     @InjectRepository(Result) private resultRepository: Repository<Result>,
     @InjectRepository(Assignment) private assignmentRepository: Repository<Assignment>,
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Course) private courseRepository: Repository<Course>,
     private readonly jwtService: JwtService,
   ) { }
+
+  // async create(accessToken: string, { homework, assignmentId }: CreateResultDto) {
+  //   try {
+  //     const payload = this.jwtService.verify(accessToken);
+  //     const users = await this.userRepository.findOne({ where: { id: payload.id } });
+  //     if (!users) {
+  //       throw new UnauthorizedException('User not found');
+  //     }
+
+  //     const assignment = await this.assignmentRepository.findOne({ 
+  //       where: { id: assignmentId },
+  //       relations: ["lesson", "lesson.modules", "lesson.modules.course", "lesson.modules.course.user"]
+  //      })
+  //     if (!assignment)
+  //       throw new HttpException('Assignment not found', HttpStatus.NOT_FOUND);
+
+  //     const isUserInCourse = assignment.lesson.modules.course.user.some(user => user.id === users.id)     
+  //     if (isUserInCourse === false) {
+  //       throw new UnauthorizedException('User is not enrolled in the course for this assignment');
+  //     }
+
+  //     const result = await this.resultRepository.create({ homework, assignment, user: users });
+  //     await this.resultRepository.save(result);
+  //     return result
+  //   } catch (error) {
+  //     throw new UnauthorizedException('Invalid access token');
+  //   }
+  // }
 
   async create(accessToken: string, { homework, assignmentId }: CreateResultDto) {
     try {
       const payload = this.jwtService.verify(accessToken);
-      const user = await this.userRepository.findOne({ where: { id: payload.id } });
-      if (!user) {
+      const users = await this.userRepository.findOne({ where: { id: payload.id } });
+      if (!users) {
         throw new UnauthorizedException('User not found');
       }
-      // console.log(user);
-      
-      const assignment = await this.assignmentRepository.findOneBy({ id: assignmentId })
-      if (!assignment)
+      const assignment = await this.assignmentRepository.findOne({
+        where: { id: assignmentId },
+        relations: ["lesson", "lesson.modules", "lesson.modules.course", "lesson.modules.course.user"]
+      });
+      if (!assignment) {
         throw new HttpException('Assignment not found', HttpStatus.NOT_FOUND);
-      const result = await this.resultRepository.create({ homework, assignment, user });
+      }
+      const isUserInCourse = assignment.lesson.modules.course.user.some(user => user.id === users.id);
+      if (!isUserInCourse) {
+        throw new UnauthorizedException('User is not enrolled in the course for this assignment');
+      }
+      // Takroriy result ni tekshirish
+      const existingResult = await this.resultRepository.findOne({
+        where: {
+          assignment: { id: assignment.id },
+          user: { id: users.id }
+        }
+      });
+      if (existingResult) {
+        if (existingResult.ball > 0) { // 0 dan katta baho mavjud bo'lsa
+          return 'You have been graded, you cannot update'
+        }
+        // Agar mavjud natijani yangilamoqchi bo'lsangiz
+        existingResult.homework = homework; // Yangi homeworkni o'rnating
+        await this.resultRepository.save(existingResult); // Saqlang
+        return existingResult; // Yangilangan natijani qaytaring
+
+      }
+      const result = await this.resultRepository.create({ homework, assignment, user: users });
       await this.resultRepository.save(result);
-      return result
-      // return "12"
+      return result;
     } catch (error) {
       throw new UnauthorizedException('Invalid access token');
     }

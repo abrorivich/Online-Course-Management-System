@@ -55,12 +55,11 @@ export class CourseService {
         course.module.forEach(module => {
           module.lesson.forEach(lesson => {
             if (lesson.assignment && lesson.assignment.result) {
-              delete lesson.assignment.result.user.password;
-              delete lesson.assignment.result.user.refreshToken;
+              // delete lesson.assignment.result.user.password;
+              // delete lesson.assignment.result.user.refreshToken;
             }
           });
         });
-  
         return course;
       });
   

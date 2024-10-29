@@ -1,6 +1,6 @@
 import { Lesson } from "src/lessons/entities/lesson.entity";
 import { Result } from "src/results/entities/result.entity";
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Assignment {
@@ -20,6 +20,6 @@ export class Assignment {
     @JoinColumn()
     lesson: Lesson;
 
-    @OneToOne(() => Result, result => result.assignment, { onDelete: "CASCADE" })
-    result: Result;
+    @OneToMany(() => Result, result => result.assignment, { onDelete: "CASCADE" })
+    result: Result[];
 }

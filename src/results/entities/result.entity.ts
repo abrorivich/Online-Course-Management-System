@@ -24,7 +24,7 @@ export class Result {
     @Column({ type: "int", default: 0 })
     ball: number
 
-    @OneToOne(() => Assignment, assignment => assignment.result, { onDelete: "CASCADE" })
+    @ManyToOne(() => Assignment, assignment => assignment.result, { onDelete: "CASCADE" })
     @JoinColumn()
     assignment: Assignment;
 
