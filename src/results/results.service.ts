@@ -80,7 +80,7 @@ export class ResultsService {
   
       // Har bir natijani o'zgartirish va foydalanuvchi ma'lumotlaridan nozik maydonlarni olib tashlash
       const filteredResults = results.map(result => {
-        const { password, refreshToken, ...userWithoutSensitiveData } = result.user;
+        const { password, ...userWithoutSensitiveData } = result.user;
         return {
           ...result,
           user: userWithoutSensitiveData,
@@ -96,7 +96,6 @@ export class ResultsService {
     }
   }
   
-
   async findOne(id: number) {
     try {
       const result = await this.resultRepository.findOne({
@@ -109,7 +108,7 @@ export class ResultsService {
       }
   
       // Foydalanuvchi ma'lumotlarini o'zgartirish
-      const { password, refreshToken, ...userWithoutSensitiveData } = result.user;
+      const { password, ...userWithoutSensitiveData } = result.user;
   
       return {
         ...result,
@@ -123,7 +122,6 @@ export class ResultsService {
     }
   }
   
-
   async update(id: number, { status, teacherMessage, ball }: UpdateResultDto) {
     try {
       const result = await this.resultRepository.findOneBy({ id })

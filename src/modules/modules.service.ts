@@ -48,7 +48,6 @@ export class ModulesService {
             lesson.assignment.result.forEach(result => {
               if (result.user) {
                 delete result.user.password; // Foydalanuvchi parolini olib tashlash
-                delete result.user.refreshToken; // Foydalanuvchi refresh tokenini olib tashlash
               }
             });
           }
@@ -85,7 +84,6 @@ export class ModulesService {
 
   async update(id: number, { name, description, courseId }: UpdateModuleDto): Promise<string> {
     try {
-
       const course = await this.courseRepository.findOneBy({ id: courseId })
       if (!course)
         throw new HttpException('Course not found', HttpStatus.NOT_FOUND);

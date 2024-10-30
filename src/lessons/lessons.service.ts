@@ -42,7 +42,6 @@ export class LessonsService {
         if (lesson.modules && lesson.modules.course && lesson.modules.course.user) {
           lesson.modules.course.user.forEach(user => {
             delete user.password; // Foydalanuvchi parolini olib tashlash
-            delete user.refreshToken; // Foydalanuvchi refresh tokenini olib tashlash
           });
         }
       });
@@ -56,7 +55,6 @@ export class LessonsService {
     }
   }
   
-
   async findOne(id: number): Promise<Lesson> {
     try {
       const lesson = await this.lessonRepository.findOne({
@@ -75,7 +73,6 @@ export class LessonsService {
       if (lesson.modules && lesson.modules.course && lesson.modules.course.user) {
         lesson.modules.course.user.forEach(user => {
           delete user.password; // Foydalanuvchi parolini olib tashlash
-          delete user.refreshToken; // Foydalanuvchi refresh tokenini olib tashlash
         });
       }
   
@@ -88,7 +85,6 @@ export class LessonsService {
     }
   }
   
-
   async update(id: number, { name, description, modulesId }: UpdateLessonDto): Promise<string> {
     try {
       const modules = await this.modulesRepository.findOneBy({ id: modulesId })

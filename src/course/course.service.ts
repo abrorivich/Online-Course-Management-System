@@ -48,7 +48,6 @@ export class CourseService {
         // Har bir kursdagi foydalanuvchilarni formatlash
         course.user.forEach(user => {
           delete user.password;
-          delete user.refreshToken;
         });
 
         // Har bir assignment ichidagi result foydalanuvchisini formatlash
@@ -59,7 +58,6 @@ export class CourseService {
               results.forEach(result => {
                 if (result.user) {
                   delete result.user.password;
-                  delete result.user.refreshToken;
                 }
               });
             }
@@ -121,7 +119,7 @@ export class CourseService {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
-  
+
 
   async update(id: number, updateCourseDto: UpdateCourseDto): Promise<string> {
     try {
@@ -171,7 +169,13 @@ export class CourseService {
         throw new HttpException('User already in course', HttpStatus.BAD_REQUEST);
       }
       await this.courseRepository.save(course);
-      return course;
+
+      const sanitizedUsers = course.user.map(({ password, ...rest }) => rest);
+
+        return {
+            ...course,
+            user: sanitizedUsers, // Yangi foydalanuvchi ro'yxati parolsiz
+        };
     } catch (error) {
       throw new UnauthorizedException('Invalid access token');
     }
@@ -188,7 +192,7 @@ export class CourseService {
       const enrolledCourses = courses.filter(course =>
         course.user.some(existingUser => existingUser.id === user.id)
       );
-  
+
       if (enrolledCourses.length === 0) {
         throw new UnauthorizedException('The user is not enrolled in any course'); // Kursda bo'lmasa
       }
@@ -204,7 +208,7 @@ export class CourseService {
       if (error instanceof UnauthorizedException) {
         throw error;
       } else {
-        throw new UnauthorizedException('Invalid access token'); 
+        throw new UnauthorizedException('Invalid access token');
       }
     }
   }
@@ -216,16 +220,16 @@ export class CourseService {
       if (!user) {
         throw new UnauthorizedException('User not found'); // Foydalanuvchi topilmasa
       }
-  
+
       const courses = await this.courseRepository.find({ relations: ['user'] });
       const enrolledCourses = courses.filter(course =>
         course.user.some(existingUser => existingUser.id === user.id)
       );
-  
+
       if (enrolledCourses.length === 0) {
         throw new UnauthorizedException('The user is not enrolled in any course'); // Kursda bo'lmasa
       }
-  
+
       const coursesWithDetails = await this.courseRepository.find({
         relations: [
           'module',
@@ -235,7 +239,7 @@ export class CourseService {
           'module.lesson.assignment.result.user',
         ],
       });
-  
+
       // Foydalanuvchining ballarini hisoblash
       const courseScores = enrolledCourses.map(course => {
         const totalScore = coursesWithDetails.find(c => c.id === course.id)?.module.reduce((moduleAcc, module) => {
@@ -248,7 +252,7 @@ export class CourseService {
             }, lessonAcc);
           }, moduleAcc);
         }, 0) || 0;
-  
+
         return {
           courseId: course.id,
           courseName: course.name,
@@ -257,16 +261,15 @@ export class CourseService {
           email: user.email,       // Foydalanuvchining email
         };
       });
-  
+
       return courseScores; // Har bir kurs bo'yicha ballar
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;
       } else {
-        throw new UnauthorizedException('Invalid access token'); 
+        throw new UnauthorizedException('Invalid access token');
       }
     }
   }
-  
-  
+
 }

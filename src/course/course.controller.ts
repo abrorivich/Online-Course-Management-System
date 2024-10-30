@@ -57,7 +57,7 @@ export class CourseController {
 // potpiska bosish 
   @UseGuards(AuthGuard, RolesUserGuard)
   @Post("userWriteToCourse/:id")
-  userWriteToCourse(@Headers('authorization') authorizationHeader: string, @Param('id') id: number, @Body() userWriteToCourseDto: userWriteToCourseDto,): Promise<Course> {
+  userWriteToCourse(@Headers('authorization') authorizationHeader: string, @Param('id') id: number, @Body() userWriteToCourseDto: userWriteToCourseDto,) {
     const tokens = authorizationHeader.split(' ');
     const accessToken = tokens[1];
     return this.courseService.userWriteToCourse(accessToken, +id, userWriteToCourseDto.userId);
