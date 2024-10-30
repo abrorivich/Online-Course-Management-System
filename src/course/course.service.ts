@@ -110,6 +110,9 @@ export class CourseService {
           'module',
         ],
       });
+      if (!course) {
+        throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
+      }
       return course
     } catch (error) {
       if (error instanceof HttpException) {
