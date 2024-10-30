@@ -20,12 +20,12 @@ export class ResultsController {
   }
   
   @Get("getAll")
-  findAll(): Promise<Result[]> {
+  findAll() {
     return this.resultsService.findAll();
   }
   
   @Get('getById/:id')
-  findOne(@Param('id') id: number): Promise<Result> {
+  findOne(@Param('id') id: number) {
     return this.resultsService.findOne(+id);
   }
   

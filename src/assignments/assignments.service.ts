@@ -31,7 +31,13 @@ export class AssignmentsService {
 
   async findAll(): Promise<Assignment[]> {
     try {
-      const assignment = await this.assignmentRepository.find({ relations: ['lesson'] })
+      const assignment = await this.assignmentRepository.find({
+        relations: [
+          'lesson',
+          'lesson.modules',
+          'lesson.modules.course'
+        ]
+      })
       return assignment
     } catch (error) {
       if (error instanceof HttpException) {
@@ -45,7 +51,11 @@ export class AssignmentsService {
     try {
       let assignment = await this.assignmentRepository.findOne({
         where: { id },
-        relations: ['lesson'],
+        relations: [
+          'lesson',
+          'lesson.modules',
+          'lesson.modules.course'
+        ]
       })
       if (!assignment)
         throw new HttpException('Assignment not found', HttpStatus.NOT_FOUND);

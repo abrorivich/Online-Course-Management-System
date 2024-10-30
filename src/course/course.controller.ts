@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Headers, Query, UnauthorizedException } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
@@ -21,6 +21,16 @@ export class CourseController {
   @Get("getAll")
   findAll(): Promise<Course[]> {
     return this.courseService.findAll();
+  }
+
+  @Get("getAllCourse")
+  findAllCourse(): Promise<Course[]> {
+    return this.courseService.findAllCourse();
+  }
+
+  @Get('search')
+  async search(@Query('name') name: string): Promise<Course[]> {
+    return this.courseService.searchCourses(name);
   }
 
   @Get('getById/:id')
@@ -46,5 +56,27 @@ export class CourseController {
     const tokens = authorizationHeader.split(' ');
     const accessToken = tokens[1];
     return this.courseService.userWriteToCourse(accessToken, +id, userWriteToCourseDto.userId);
+  }
+
+  @UseGuards(AuthGuard, RolesUserGuard)
+  @Get("getAllForUser")
+  async getAllForUser(@Headers('authorization') authorizationHeader: string): Promise<Course[]> {
+    const tokens = authorizationHeader.split(' ');
+    const accessToken = tokens[1];
+    if (!accessToken) {
+      throw new UnauthorizedException('Access token is missing');
+    }
+    return this.courseService.getAllForUser(accessToken);
+  }
+
+  @UseGuards(AuthGuard, RolesUserGuard)
+  @Get("getAllBall")
+  async getAllBall(@Headers('authorization') authorizationHeader: string): Promise<Course[]> {
+    const tokens = authorizationHeader.split(' ');
+    const accessToken = tokens[1];
+    if (!accessToken) {
+      throw new UnauthorizedException('Access token is missing');
+    }
+    return this.courseService.getAllBall(accessToken);
   }
 }

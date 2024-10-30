@@ -31,8 +31,23 @@ export class LessonsService {
 
   async findAll(): Promise<Lesson[]> {
     try {
-      const lesson = await this.lessonRepository.find({ relations: ['modules'] })
-      return lesson
+      const lessons = await this.lessonRepository.find({
+        relations: [
+          'modules',
+          'modules.course',
+          'modules.course.user',
+        ],
+      });
+      lessons.forEach(lesson => {
+        if (lesson.modules && lesson.modules.course && lesson.modules.course.user) {
+          lesson.modules.course.user.forEach(user => {
+            delete user.password; // Foydalanuvchi parolini olib tashlash
+            delete user.refreshToken; // Foydalanuvchi refresh tokenini olib tashlash
+          });
+        }
+      });
+  
+      return lessons; 
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -40,15 +55,30 @@ export class LessonsService {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+  
 
   async findOne(id: number): Promise<Lesson> {
     try {
-      let lesson = await this.lessonRepository.findOne({
+      const lesson = await this.lessonRepository.findOne({
         where: { id },
-        relations: ['modules'],
-      })
-      if (!lesson)
+        relations: [
+          'modules',
+          'modules.course',
+          'modules.course.user'
+        ],
+      });
+  
+      if (!lesson) {
         throw new HttpException('Lesson not found', HttpStatus.NOT_FOUND);
+      }
+  
+      if (lesson.modules && lesson.modules.course && lesson.modules.course.user) {
+        lesson.modules.course.user.forEach(user => {
+          delete user.password; // Foydalanuvchi parolini olib tashlash
+          delete user.refreshToken; // Foydalanuvchi refresh tokenini olib tashlash
+        });
+      }
+  
       return lesson;
     } catch (error) {
       if (error instanceof HttpException) {
@@ -57,6 +87,7 @@ export class LessonsService {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+  
 
   async update(id: number, { name, description, modulesId }: UpdateLessonDto): Promise<string> {
     try {

@@ -31,9 +31,31 @@ export class ModulesService {
 
   async findAll(): Promise<Modules[]> {
     try {
+      const modules = await this.modulesRepository.find({
+        relations: [
+          'course',
+          'lesson',
+          'lesson.assignment',
+          'lesson.assignment.result',
+          'lesson.assignment.result.user',
+        ],
+      });
 
-      const modules = await this.modulesRepository.find({ relations: ['course', "lesson"] })
-      return modules
+      // Har bir modul uchun foydalanuvchi ma'lumotlarini formatlash
+      modules.forEach(module => {
+        module.lesson.forEach(lesson => {
+          if (lesson.assignment && lesson.assignment.result) {
+            lesson.assignment.result.forEach(result => {
+              if (result.user) {
+                delete result.user.password; // Foydalanuvchi parolini olib tashlash
+                delete result.user.refreshToken; // Foydalanuvchi refresh tokenini olib tashlash
+              }
+            });
+          }
+        });
+      });
+
+      return modules; // Formatlangan modullarni qaytaramiz
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -42,12 +64,13 @@ export class ModulesService {
     }
   }
 
+
   async findOne(id: number): Promise<Modules> {
     try {
 
       let modules = await this.modulesRepository.findOne({
         where: { id },
-        relations: ['course'],
+        relations: ['lesson'],
       })
       if (!modules)
         throw new HttpException('Modules not found', HttpStatus.NOT_FOUND);

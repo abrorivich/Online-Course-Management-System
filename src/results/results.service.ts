@@ -72,27 +72,49 @@ export class ResultsService {
     }
   }
 
-  async findAll(): Promise<Result[]> {
+  async findAll() {
     try {
-      const result = await this.resultRepository.find({ relations: ['assignment', 'user'] })
-      return result
+      const results = await this.resultRepository.find({
+        relations: ['assignment', 'user'],
+      });
+  
+      // Har bir natijani o'zgartirish va foydalanuvchi ma'lumotlaridan nozik maydonlarni olib tashlash
+      const filteredResults = results.map(result => {
+        const { password, refreshToken, ...userWithoutSensitiveData } = result.user;
+        return {
+          ...result,
+          user: userWithoutSensitiveData,
+        };
+      });
+  
+      return filteredResults;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      throw new HttpException('Ichki server xatosi', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+  
 
-  async findOne(id: number): Promise<Result> {
+  async findOne(id: number) {
     try {
-      let result = await this.resultRepository.findOne({
+      const result = await this.resultRepository.findOne({
         where: { id },
         relations: ['assignment', 'user'],
-      })
-      if (!result)
+      });
+  
+      if (!result) {
         throw new HttpException('Result not found', HttpStatus.NOT_FOUND);
-      return result;
+      }
+  
+      // Foydalanuvchi ma'lumotlarini o'zgartirish
+      const { password, refreshToken, ...userWithoutSensitiveData } = result.user;
+  
+      return {
+        ...result,
+        user: userWithoutSensitiveData,
+      };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -100,6 +122,7 @@ export class ResultsService {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+  
 
   async update(id: number, { status, teacherMessage, ball }: UpdateResultDto) {
     try {
