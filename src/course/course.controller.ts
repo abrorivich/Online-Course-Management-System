@@ -12,6 +12,7 @@ import { userWriteToCourseDto } from './dto/userWriteToCourse.Dto';
 export class CourseController {
   constructor(private readonly courseService: CourseService) { }
 
+  // create (course create qiladi admin token berish kerak )
   @UseGuards(AuthGuard, RolesAdminGuard)
   @Post("create")
   async create(@Body() createCourseDto: CreateCourseDto): Promise<Course> {
@@ -28,6 +29,7 @@ export class CourseController {
     return this.courseService.findAllCourse();
   }
 
+  // search (name masalan NodeJS yozilgan bosa N kiritsa qaytaradi n kiritsa qaytarmidi)
   @Get('search')
   async search(@Query('name') name: string): Promise<Course[]> {
     return this.courseService.searchCourses(name);
@@ -38,18 +40,21 @@ export class CourseController {
     return this.courseService.findOne(+id);
   }
 
+  // admin token beradi
   @UseGuards(AuthGuard, RolesAdminGuard)
   @Patch('update/:id')
   update(@Param('id') id: number, @Body() updateCourseDto: UpdateCourseDto): Promise<string> {
     return this.courseService.update(+id, updateCourseDto);
   }
-
+  
+  // admin token beradi
   @UseGuards(AuthGuard, RolesAdminGuard)
   @Delete('delete/:id')
   remove(@Param('id') id: number): Promise<string> {
     return this.courseService.remove(+id);
   }
 
+// potpiska bosish 
   @UseGuards(AuthGuard, RolesUserGuard)
   @Post("userWriteToCourse/:id")
   userWriteToCourse(@Headers('authorization') authorizationHeader: string, @Param('id') id: number, @Body() userWriteToCourseDto: userWriteToCourseDto,): Promise<Course> {
@@ -58,6 +63,7 @@ export class CourseController {
     return this.courseService.userWriteToCourse(accessToken, +id, userWriteToCourseDto.userId);
   }
 
+  // getAllForUser (user token beradi va course larini chiqazib beradi)
   @UseGuards(AuthGuard, RolesUserGuard)
   @Get("getAllForUser")
   async getAllForUser(@Headers('authorization') authorizationHeader: string): Promise<Course[]> {
@@ -69,6 +75,7 @@ export class CourseController {
     return this.courseService.getAllForUser(accessToken);
   }
 
+  // getAllBall (user token beradi va ballarini hisoblab beradi)
   @UseGuards(AuthGuard, RolesUserGuard)
   @Get("getAllBall")
   async getAllBall(@Headers('authorization') authorizationHeader: string): Promise<Course[]> {

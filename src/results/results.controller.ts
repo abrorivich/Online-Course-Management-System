@@ -11,6 +11,7 @@ import { RolesAdminGuard } from 'src/auth/rolesAdmin.guard';
 export class ResultsController {
   constructor(private readonly resultsService: ResultsService) { }
 
+  // create (user token beradi admin ball qoymaguncha yana request jonatib post orqali update qilish imkoni bor)
   @UseGuards(AuthGuard, RolesUserGuard)
   @Post("create")
   create(@Headers('authorization') authorizationHeader: string, @Body() createResultDto: CreateResultDto) {
@@ -29,12 +30,14 @@ export class ResultsController {
     return this.resultsService.findOne(+id);
   }
   
+  // update (admin update qilib userning homeworkiga ball qoyadi)
   @UseGuards(AuthGuard, RolesAdminGuard)
   @Patch('update/:id')
   update(@Param('id') id: number, @Body() updateResultDto: UpdateResultDto): Promise<string> {
     return this.resultsService.update(+id, updateResultDto);
   }
   
+    // admin token beradi
   @UseGuards(AuthGuard, RolesAdminGuard)
   @Delete('delete/:id')
   remove(@Param('id') id: number): Promise<string> {

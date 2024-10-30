@@ -10,6 +10,7 @@ import { RolesAdminGuard } from 'src/auth/rolesAdmin.guard';
 export class LessonsController {
   constructor(private readonly lessonsService: LessonsService) {}
 
+  // admin token beradi
   @UseGuards(AuthGuard, RolesAdminGuard)
   @Post("create")
   create(@Body() createLessonDto: CreateLessonDto): Promise<Lesson> {
@@ -26,12 +27,14 @@ export class LessonsController {
     return this.lessonsService.findOne(+id);
   }
   
+  // admin token beradi
   @UseGuards(AuthGuard, RolesAdminGuard)
   @Patch('update/:id')
   update(@Param('id') id: number, @Body() updateLessonDto: UpdateLessonDto): Promise<string> {
     return this.lessonsService.update(+id, updateLessonDto);
   }
   
+  // admin token beradi
   @UseGuards(AuthGuard, RolesAdminGuard)
   @Delete('delete/:id')
   remove(@Param('id') id: number): Promise<string> {

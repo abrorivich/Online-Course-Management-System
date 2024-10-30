@@ -9,7 +9,8 @@ import { RolesAdminGuard } from 'src/auth/rolesAdmin.guard';
 @Controller('assignments')
 export class AssignmentsController {
   constructor(private readonly assignmentsService: AssignmentsService) { }
-
+  
+  // admin token beradi
   @UseGuards(AuthGuard, RolesAdminGuard)
   @Post("create")
   create(@Body() createAssignmentDto: CreateAssignmentDto): Promise<Assignment> {
@@ -26,12 +27,14 @@ export class AssignmentsController {
     return this.assignmentsService.findOne(+id);
   }
   
+  // admin token beradi
   @UseGuards(AuthGuard, RolesAdminGuard)
   @Patch('update/:id')
   update(@Param('id') id: number, @Body() updateAssignmentDto: UpdateAssignmentDto): Promise<string> {
     return this.assignmentsService.update(+id, updateAssignmentDto);
   }
   
+  // admin token beradi
   @UseGuards(AuthGuard, RolesAdminGuard)
   @Delete('delete/:id')
   remove(@Param('id') id: number): Promise<string> {

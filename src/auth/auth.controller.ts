@@ -9,22 +9,26 @@ import { RegisterDto } from './dto/register.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
+  // register admin uchun
   @Post('register/admin')
   async registerAdmin(@Body() createAuthDto: RegisterDto) {
     return this.authService.registerAdmin(createAuthDto);
   } 
-
+  
+  // register user uchun
   @Post('register/user')
   async registerUser(@Body() createAuthDto: RegisterDto) {
     return this.authService.registerUser(createAuthDto);
   }
-
+  
+  // login
   @Post('login')
   async login(@Body() loginDto: LoginDto, @Res() res: any) {
     const data = await this.authService.login(loginDto);
     res.status(200).json({ data })
   }
-
+  
+  // Token beradi ozini malumotlarini oladi
   @UseGuards(AuthGuard)
   @Get('getMe')
   async getMe(@Headers('authorization') authorizationHeader: string) {
@@ -32,7 +36,8 @@ export class AuthController {
     const accessToken = tokens[1];
     return this.authService.getMe(accessToken);
   }
-
+  
+  // RefreshToken beradi va accessToken oladi
   @UseGuards(AuthGuard)
   @Post('refreshToken')
   async refreshToken(@Headers('authorization') authorizationHeader: string) {
@@ -41,6 +46,8 @@ export class AuthController {
     return this.authService.refreshToken(refreshToken);
   }
 
+
+  // Databasedan chiqib ketadi))))
   @UseGuards(AuthGuard)
   @Delete('logout')
   async logout(@Headers('authorization') authHeader: string): Promise<{ message: string }> {
@@ -48,6 +55,7 @@ export class AuthController {
     return this.authService.logout(token);
   }
 
+  // Barcha userslarni koradi
   @Get("getAll")
   findAll() {
     return this.authService.findAll();
