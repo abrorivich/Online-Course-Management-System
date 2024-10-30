@@ -1,0 +1,39 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: avaz1514
+      POSTGRES_DB: exam
+    networks:
+      - ntSearch
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    image: exam
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=exam
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=avaz1514
+      - POSTGRES_DB=exam
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - ntSearch
+
+networks:
+  ntSearch:
+    driver: bridge
