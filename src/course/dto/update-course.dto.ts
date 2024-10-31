@@ -1,6 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateCourseDto } from './create-course.dto';
-import { IsNumber, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { CourseLevel } from '../entities/course.entity';
 
 export class UpdateCourseDto extends PartialType(CreateCourseDto) {
     @IsOptional()
@@ -34,8 +35,8 @@ export class UpdateCourseDto extends PartialType(CreateCourseDto) {
     category: string
     
     @IsOptional()
-    @IsString()
+    @IsEnum(CourseLevel)
     @MinLength(4)
     @MaxLength(64)
-    level: string
+    level: CourseLevel
 }
