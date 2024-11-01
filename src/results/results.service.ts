@@ -41,7 +41,6 @@ export class ResultsService {
         throw new UnauthorizedException('User is not enrolled in the course for this assignment');
       }
 
-      // Takroriy result ni tekshirish
       const existingResult = await this.resultRepository.findOne({
         where: {
           assignment: { id: assignment.id },
@@ -50,34 +49,58 @@ export class ResultsService {
       });
 
       if (existingResult) {
-        if (existingResult.ball > 0) { // 0 dan katta baho mavjud bo'lsa
+        if (existingResult.ball > 0) {
           throw new HttpException('You have been graded, you cannot update', HttpStatus.FORBIDDEN);
         }
-
-        // Agar mavjud natijani yangilamoqchi bo'lsangiz
-        existingResult.homework = homework; // Yangi homeworkni o'rnating
-        await this.resultRepository.save(existingResult); // Saqlang
-        return existingResult; // Yangilangan natijani qaytaring
+        existingResult.homework = homework;
+        await this.resultRepository.save(existingResult);
+        return existingResult;
       }
 
-      const result = await this.resultRepository.create({ homework, assignment, user });
+      const result = await this.resultRepository.create({
+        homework,
+        assignment: {
+          ...assignment,
+          lesson: {
+            ...assignment.lesson,
+            modules: {
+              ...assignment.lesson.modules,
+              course: {
+                ...assignment.lesson.modules.course,
+                user: assignment.lesson.modules.course.user.map(({ password, ...user }) => user)
+              }
+            }
+          }
+        },
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          age: user.age,
+          from: user.from,
+          role: user.role,
+        }
+      });
+
       await this.resultRepository.save(result);
       return result;
     } catch (error) {
       if (error instanceof HttpException) {
-        throw error; // Agar xato HttpException bo'lsa, uni qaytarish
+        throw error;
       } else {
-        throw new HttpException('Invalid access token', HttpStatus.UNAUTHORIZED); // Boshqa xatolar uchun umumiy xato
+        throw new HttpException('Invalid access token', HttpStatus.UNAUTHORIZED);
       }
     }
   }
+
+
 
   async findAll() {
     try {
       const results = await this.resultRepository.find({
         relations: ['assignment', 'user'],
       });
-  
+
       // Har bir natijani o'zgartirish va foydalanuvchi ma'lumotlaridan nozik maydonlarni olib tashlash
       const filteredResults = results.map(result => {
         const { password, ...userWithoutSensitiveData } = result.user;
@@ -86,7 +109,7 @@ export class ResultsService {
           user: userWithoutSensitiveData,
         };
       });
-  
+
       return filteredResults;
     } catch (error) {
       if (error instanceof HttpException) {
@@ -95,21 +118,21 @@ export class ResultsService {
       throw new HttpException('Ichki server xatosi', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  
+
   async findOne(id: number) {
     try {
       const result = await this.resultRepository.findOne({
         where: { id },
         relations: ['assignment', 'user'],
       });
-  
+
       if (!result) {
         throw new HttpException('Result not found', HttpStatus.NOT_FOUND);
       }
-  
+
       // Foydalanuvchi ma'lumotlarini o'zgartirish
       const { password, ...userWithoutSensitiveData } = result.user;
-  
+
       return {
         ...result,
         user: userWithoutSensitiveData,
@@ -121,7 +144,7 @@ export class ResultsService {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
-  
+
   async update(id: number, { status, teacherMessage, ball }: UpdateResultDto) {
     try {
       const result = await this.resultRepository.findOneBy({ id })
